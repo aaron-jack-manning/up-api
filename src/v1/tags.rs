@@ -2,15 +2,17 @@ use crate::v1::{Client, error, BASE_URL};
 
 use serde::{Deserialize, Serialize};
 
+// ----------------- Response Objects -----------------
+
 #[derive(Deserialize, Debug)]
 pub struct ListTagsResponse {
     /// The list of tags returned in this response.
-    pub data : Vec<Data>,
+    pub data : Vec<TagResource>,
     pub links : ResponseLinks,
 }
 
 #[derive(Deserialize, Debug)]
-pub struct Data {
+pub struct TagResource {
     /// The type of this resource: `tags`
     pub r#type : String,
     /// The label of the tag, which also acts as the tag’s unique identifier.
@@ -40,6 +42,8 @@ pub struct ResponseLinks {
     pub next : Option<String>,
 }
 
+// ----------------- Input Objects -----------------
+
 #[derive(Default)]
 pub struct ListTagsOptions {
     /// The number of records to return in each page. 
@@ -53,11 +57,22 @@ impl ListTagsOptions {
     }
 
     fn add_params(&self, url : &mut reqwest::Url) {
+        let mut query = String::new();
+
         if let Some(value) = &self.page_size {
-            url.set_query(Some(&format!("page[size]={}", value)));
+            if !query.is_empty() {
+                query.push('&');
+            }
+            query.push_str(&format!("page[size]={}", value));
+        }
+
+        if !query.is_empty() {
+            url.set_query(Some(&query))
         }
     }
 }
+
+// ----------------- Request Objects -----------------
 
 #[derive(Serialize)]
 struct TagInputResourceIdentifier {
@@ -72,7 +87,6 @@ struct TagRequest {
     /// The tags to add to or remove from the transaction.
     data : Vec<TagInputResourceIdentifier>
 }
-
 
 impl Client {
     /// Retrieve a list of all tags currently in use. The returned list is paginated and can be scrolled by following the `next` and `prev`  links where present. Results are ordered lexicographically. The transactions relationship for each tag exposes a link to get the transactions with the given tag.
@@ -90,7 +104,6 @@ impl Client {
         match res.status() {
             reqwest::StatusCode::OK => {
                 let body = res.text().await.map_err(error::Error::BodyRead)?;
-                println!("{}", body);
                 let tags_response : ListTagsResponse = serde_json::from_str(&body).map_err(error::Error::Json)?;
 
                 Ok(tags_response)
@@ -123,6 +136,7 @@ impl Client {
         let res = reqwest::Client::new()
             .post(url)
             .header("Authorization", self.auth_header())
+            .header("Content-Type", "application/json")
             .body(body)
             .send()
             .await
@@ -160,6 +174,7 @@ impl Client {
         let res = reqwest::Client::new()
             .delete(url)
             .header("Authorization", self.auth_header())
+            .header("Content-Type", "application/json")
             .body(body)
             .send()
             .await

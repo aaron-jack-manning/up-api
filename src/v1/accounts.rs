@@ -1,24 +1,37 @@
-use crate::v1::{Client, error, BASE_URL};
+use crate::v1::{Client, error, BASE_URL, standard};
 
 use serde::Deserialize;
 
-#[derive(Deserialize, Debug)]
-pub struct GetAccountResponse {
-    /// The account returned in this response.
-    pub data : Data,
-}
+// ----------------- Response Objects -----------------
 
 #[derive(Deserialize, Debug)]
 pub struct ListAccountsResponse {
     /// The list of accounts returned in this response.
-    pub data : Vec<Data>,
+    pub data : Vec<AccountResource>,
     pub links : ResponseLinks,
 }
 
 #[derive(Deserialize, Debug)]
-pub struct DataLinks {
-    #[serde(rename = "self")]
+pub struct GetAccountResponse {
+    /// The account returned in this response.
+    pub data : AccountResource,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct AccountResource {
+    /// The type of this resource: `accounts`.
+    pub r#type : String,
+    /// The unique identifier for this account.
+    pub id : String,
+    pub attributes : Attributes,
+    pub relationships : Relationships,
+    pub links : Option<AccountResourceLinks>,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct AccountResourceLinks {
     /// The canonical link to this resource within the API.
+    #[serde(rename = "self")]
     pub this : Option<String>,
 }
 
@@ -28,17 +41,6 @@ pub struct ResponseLinks {
     pub prev : Option<String>,
     /// The link to the next page in the results. If this value is `None` there is no next page.
     pub next : Option<String>,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct Data {
-    /// The type of this resource: `accounts`.
-    pub r#type : String,
-    /// The unique identifier for this account.
-    pub id : String,
-    pub attributes : Attributes,
-    pub relationships : Relationships,
-    pub links : Option<DataLinks>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -58,34 +60,21 @@ pub struct TransactionLinks {
 }
 
 #[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct Attributes {
-    #[serde(rename = "displayName")]
     /// The name associated with the account in the Up application.
     pub display_name : String,
-    #[serde(rename = "accountType")]
     /// The bank account type of this account. Possible values: SAVER, TRANSACTIONAL
     pub account_type : String,
-    #[serde(rename = "ownershipType")]
     /// The ownership structure for this account. Possible values: INDIVIDUAL, JOINT
     pub ownership_type : String,
     /// The available balance of the account, taking into account any amounts that are currently on hold.
-    pub balance : Balance,
-    #[serde(rename = "createdAt")]
+    pub balance : standard::MoneyObject,
     /// The date-time at which this account was first opened.
     pub created_at : String,
 }
 
-#[derive(Deserialize, Debug)]
-pub struct Balance {
-    #[serde(rename = "currencyCode")]
-    /// The ISO 4217 currency code.
-    pub currency_code : String,
-    /// The amount of money, formatted as a string in the relevant currency. For example, for an Australian dollar value of $10.56, this field will be `"10.56"`. The currency symbol is not included in the string
-    pub value : String,
-    #[serde(rename = "valueInBaseUnits")]
-    /// The amount of money in the smallest denomination for the currency, as a 64-bit integer. For example, for an Australian dollar value of $10.56, this field will be `1056`.
-    pub value_in_base_units : i64,
-}
+// ----------------- Input Objects -----------------
 
 #[derive(Default)]
 pub struct ListAccountsOptions {
@@ -94,7 +83,7 @@ pub struct ListAccountsOptions {
     /// The type of account for which to return records. This can be used to filter Savers from spending accounts.
     filter_account_type : Option<String>,
     /// The account ownership structure for which to return records. This can be used to filter 2Up accounts from Up accounts.
-    filter_owership_type : Option<String>,
+    filter_ownership_type : Option<String>,
 }
 
 impl ListAccountsOptions {
@@ -109,21 +98,36 @@ impl ListAccountsOptions {
     }
 
     /// Sets the ownership type filter value.
-    pub fn filter_owership_type(&mut self, value : String) {
-        self.filter_owership_type = Some(value);
+    pub fn filter_ownership_type(&mut self, value : String) {
+        self.filter_ownership_type = Some(value);
     }
 
     fn add_params(&self, url : &mut reqwest::Url) {
+        let mut query = String::new();
+
         if let Some(value) = &self.page_size {
-            url.set_query(Some(&format!("page[size]={}", value)));
+            if !query.is_empty() {
+                query.push('&');
+            }
+            query.push_str(&format!("page[size]={}", value));
         }
 
         if let Some(value) = &self.filter_account_type {
-            url.set_query(Some(&format!("filter[accountType]={}", value)));
+            if !query.is_empty() {
+                query.push('&');
+            }
+            query.push_str(&format!("filter[accountType]={}", value));
         }
 
-        if let Some(value) = &self.filter_owership_type {
-            url.set_query(Some(&format!("filter[ownershipType]={}", value)));
+        if let Some(value) = &self.filter_ownership_type {
+            if !query.is_empty() {
+                query.push('&');
+            }
+            query.push_str(&format!("filter[ownershipType]={}", value));
+        }
+
+        if !query.is_empty() {
+            url.set_query(Some(&query));
         }
     }
 }
@@ -144,7 +148,6 @@ impl Client {
         match res.status() {
             reqwest::StatusCode::OK => {
                 let body = res.text().await.map_err(error::Error::BodyRead)?;
-                println!("{}", body);
                 let account_response : ListAccountsResponse = serde_json::from_str(&body).map_err(error::Error::Json)?;
 
                 Ok(account_response)
@@ -178,7 +181,6 @@ impl Client {
         match res.status() {
             reqwest::StatusCode::OK => {
                 let body = res.text().await.map_err(error::Error::BodyRead)?;
-                println!("{}", body);
                 let account_response : GetAccountResponse = serde_json::from_str(&body).map_err(error::Error::Json)?;
 
                 Ok(account_response)

@@ -2,6 +2,8 @@ use crate::v1::{Client, error, BASE_URL};
 
 use serde::Deserialize;
 
+// ----------------- Request Objects -----------------
+
 #[derive(Deserialize, Debug)]
 pub struct PingResponse {
     pub meta : Meta,

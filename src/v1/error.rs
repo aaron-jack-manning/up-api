@@ -40,11 +40,11 @@ impl std::error::Error for Error {}
 #[derive(Deserialize, Debug)]
 pub struct ErrorResponse {
     /// The list of errors returned in this response.
-    pub errors : Vec<UpError>,
+    pub errors : Vec<ErrorObject>,
 }
 
 #[derive(Deserialize, Debug)]
-pub struct UpError {
+pub struct ErrorObject {
     /// The HTTP status code associated with this error. The status indicates the broad type of error according to HTTP semantics.
     pub status : String,
     /// A short description of this error. This should be stable across multiple occurrences of this type of error and typically expands on the reason for the status code.
