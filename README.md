@@ -37,4 +37,4 @@ async fn main() {
 
 ## Planned Features
 
-Currently this API wrapper supports all of the `v1` Up API endpoints except [webhooks](https://developer.up.com.au/#webhooks). This is planned for a (hopefull soon) future release.
+Currently this API wrapper supports all of the `v1` Up API endpoints except [webhooks](https://developer.up.com.au/#webhooks). This is planned for a (hopefully soon) future release.
