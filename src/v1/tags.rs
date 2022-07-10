@@ -1,4 +1,4 @@
-use crate::{Client, error};
+use crate::v1::{Client, error, BASE_URL};
 
 use serde::{Deserialize, Serialize};
 
@@ -77,7 +77,7 @@ struct TagRequest {
 impl Client {
     /// Retrieve a list of all tags currently in use. The returned list is paginated and can be scrolled by following the `next` and `prev`  links where present. Results are ordered lexicographically. The transactions relationship for each tag exposes a link to get the transactions with the given tag.
     pub async fn list_tags(&self, options : &ListTagsOptions) -> Result<ListTagsResponse, error::Error> {
-        let mut url = reqwest::Url::parse(&format!("{}/tags", crate::BASE_URL)).map_err(error::Error::UrlParse)?;
+        let mut url = reqwest::Url::parse(&format!("{}/tags", BASE_URL)).map_err(error::Error::UrlParse)?;
         options.add_params(&mut url);
 
         let res = reqwest::Client::new()
@@ -106,7 +106,7 @@ impl Client {
 
     /// Associates one or more tags with a specific transaction. No more than 6 tags may be present on any single transaction. Duplicate tags are silently ignored. The associated tags, along with this request URL, are also exposed via the tags relationship on the transaction resource returned from `get_transaction`.
     pub async fn add_tags(&self, transaction_id : &str, tags : Vec<String>) -> Result<(), error::Error> {
-        let url = reqwest::Url::parse(&format!("{}/transactions/{}/relationships/tags", crate::BASE_URL, transaction_id)).map_err(error::Error::UrlParse)?;
+        let url = reqwest::Url::parse(&format!("{}/transactions/{}/relationships/tags", BASE_URL, transaction_id)).map_err(error::Error::UrlParse)?;
 
         let tags =
             tags
@@ -143,7 +143,7 @@ impl Client {
 
     /// Disassociates one or more tags from a specific transaction. Tags that are not associated are silently ignored. The associated tags, along with this request URL, are also exposed via the tags relationship on the transaction resource returned from `get_transaction`.
     pub async fn delete_tags(&self, transaction_id : &str, tags : Vec<String>) -> Result<(), error::Error> {
-        let url = reqwest::Url::parse(&format!("{}/transactions/{}/relationships/tags", crate::BASE_URL, transaction_id)).map_err(error::Error::UrlParse)?;
+        let url = reqwest::Url::parse(&format!("{}/transactions/{}/relationships/tags", BASE_URL, transaction_id)).map_err(error::Error::UrlParse)?;
 
         let tags =
             tags
@@ -176,7 +176,6 @@ impl Client {
                 Err(error::Error::Api(error))
             }
         }
-
     }
 }
 

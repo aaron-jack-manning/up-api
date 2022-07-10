@@ -1,6 +1,6 @@
 # Up API
 
-A convenient and easy to use wrapper for the [UP Bank API](https://developer.up.com.au).
+A convenient and easy to use wrapper for the [Up Bank API](https://developer.up.com.au).
 
 ## Example
 

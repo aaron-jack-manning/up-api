@@ -1,4 +1,4 @@
-use crate::{Client, error};
+use crate::v1::{Client, error, BASE_URL};
 
 use serde::Deserialize;
 
@@ -19,7 +19,7 @@ pub struct Meta {
 impl Client {
     /// Make a basic ping request to the API. This is useful to verify that authentication is functioning correctly.
     pub async fn ping(&self) -> Result<PingResponse, error::Error> {
-        let url = reqwest::Url::parse(&format!("{}/util/ping", crate::BASE_URL)).map_err(error::Error::UrlParse)?;
+        let url = reqwest::Url::parse(&format!("{}/util/ping", BASE_URL)).map_err(error::Error::UrlParse)?;
 
         let res = reqwest::Client::new()
             .get(url)

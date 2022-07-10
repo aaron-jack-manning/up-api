@@ -1,4 +1,4 @@
-use crate::{Client, error};
+use crate::v1::{Client, error, BASE_URL};
 
 use serde::Deserialize;
 
@@ -131,7 +131,7 @@ impl ListAccountsOptions {
 impl Client {
     /// Retrieve a paginated list of all accounts for the currently authenticated user. The returned list is paginated and can be scrolled by following the `prev` and `next` links where present. 
     pub async fn list_accounts(&self, options : &ListAccountsOptions) -> Result<ListAccountsResponse, error::Error> {
-        let mut url = reqwest::Url::parse(&format!("{}/accounts", crate::BASE_URL)).map_err(error::Error::UrlParse)?;
+        let mut url = reqwest::Url::parse(&format!("{}/accounts", BASE_URL)).map_err(error::Error::UrlParse)?;
         options.add_params(&mut url);
 
         let res = reqwest::Client::new()
@@ -166,7 +166,7 @@ impl Client {
             panic!("The provided account ID must not be empty.");
         }
 
-        let url = reqwest::Url::parse(&format!("{}/accounts/{}", crate::BASE_URL, id)).map_err(error::Error::UrlParse)?;
+        let url = reqwest::Url::parse(&format!("{}/accounts/{}", BASE_URL, id)).map_err(error::Error::UrlParse)?;
 
         let res = reqwest::Client::new()
             .get(url)
