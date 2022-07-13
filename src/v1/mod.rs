@@ -1,3 +1,6 @@
+#[macro_use]
+mod macros;
+
 /// Error types and trait implementations.
 pub mod error;
 /// Types for modelling and interacting with [accounts](https://developer.up.com.au/#accounts).
@@ -12,6 +15,7 @@ pub mod transactions;
 pub mod utilities;
 /// Types which are stardized (and named) across many resources.
 pub mod standard;
+
 
 static BASE_URL : &str = "https://api.up.com.au/api/v1";
 

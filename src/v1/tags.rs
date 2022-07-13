@@ -194,3 +194,6 @@ impl Client {
     }
 }
 
+// ----------------- Page Navigation -----------------
+
+implement_pagination_v1!(ListTagsResponse);
