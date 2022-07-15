@@ -44,7 +44,3 @@ async fn main() {
     println!("{}", total);
 }
 ```
-
-## Planned Features
-
-- Currently this API wrapper supports all of the `v1` Up API endpoints except [webhooks](https://developer.up.com.au/#webhooks). This is planned for a (hopefully soon) future release.

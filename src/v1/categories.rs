@@ -117,7 +117,7 @@ impl ListCategoriesOptions {
     }
 }
 
-// ----------------- Input Objects -----------------
+// ----------------- Request Objects -----------------
 
 #[derive(Serialize)]
 struct CategoriseTransactionRequest {
@@ -165,9 +165,9 @@ impl Client {
     /// Retrieve a specific category by providing its unique identifier.
     pub async fn get_category(&self, id : &str) -> Result<GetCategoryResponse, error::Error> {
         // This assertion is because without an ID the request is thought to be a request for
-        // many accounts, and therefore the error messages are very unclear.
+        // many categories, and therefore the error messages are very unclear.
         if id.is_empty() {
-            panic!("The provided account ID must not be empty.");
+            panic!("The provided category ID must not be empty.");
         }
 
         let url = reqwest::Url::parse(&format!("{}/categories/{}", BASE_URL, id)).map_err(error::Error::UrlParse)?;

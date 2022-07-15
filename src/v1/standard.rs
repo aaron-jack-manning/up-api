@@ -80,3 +80,21 @@ pub struct CardPurchaseMethodObject {
     /// The last four digits of the card used for the purchase, if applicable.
     pub card_number_suffix : Option<String>,
 }
+
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum WebhookEventTypeEnum {
+    TransactionCreated,
+    TransactionSettled,
+    TransactionDeleted,
+    Ping,
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum WebhookDeliveryStatusEnum {
+    Delivered,
+    Undeliverable,
+    BadResponseCode,
+}

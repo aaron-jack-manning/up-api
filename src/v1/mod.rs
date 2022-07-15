@@ -13,6 +13,8 @@ pub mod tags;
 pub mod transactions;
 /// Types for modelling and interacting with [utilities](https://developer.up.com.au/#utility_endpoints).
 pub mod utilities;
+/// Types for modelling and interacting with [webhooks](https://developer.up.com.au/#webhooks).
+pub mod webhooks;
 /// Types which are stardized (and named) across many resources.
 pub mod standard;
 

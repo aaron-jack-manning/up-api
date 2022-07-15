@@ -320,7 +320,7 @@ impl Client {
     /// Retrieve a specific transaction by providing its unique identifier.
     pub async fn get_transaction(&self, id : &String) -> Result<GetTransactionResponse, error::Error> {
         // This assertion is because without an ID the request is thought to be a request for
-        // many accounts, and therefore the error messages are very unclear.
+        // many transactions, and therefore the error messages are very unclear.
         if id.is_empty() {
             panic!("The provided transaction ID must not be empty.");
         }
